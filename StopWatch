@@ -1,0 +1,242 @@
+//
+//  ViewController.swift
+//  StopWatch
+//
+//  Created by Razvigor Andreev on 10/16/14.
+//  Copyright (c) 2014 Razvigor Andreev. All rights reserved.
+//
+
+import UIKit
+
+class ViewController: UIViewController {
+    
+    
+//    iVars
+    
+    var timer: NSTimer?
+    var startTime: NSDate?
+    var currentTime: NSDate?
+    var stopTime: NSDate?
+    var dateFormatter = NSDateFormatter()
+    var running: Int?
+    var currentLap:Int = 0
+    
+    
+//    Labels
+
+    @IBOutlet weak var timeLabel: UILabel!
+    @IBOutlet weak var startLabel: UIButton!
+    @IBOutlet weak var stopLabel: UIButton!
+    @IBOutlet weak var lap1: UILabel!
+    @IBOutlet weak var lap2: UILabel!
+    @IBOutlet weak var lap3: UILabel!
+    @IBOutlet weak var lap4: UILabel!
+    
+    
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        running = 0
+        timeLabel.text = dateStringFromTimeInterval(0)
+        roundUpButtons()
+        startLabel.setTitle("START", forState: UIControlState.Normal)
+        startLabel.setTitleColor(UIColor.greenColor(), forState: UIControlState.Normal)
+        stopLabel.setTitle("RESET", forState: UIControlState.Normal)
+        stopLabel.setTitleColor(UIColor.redColor(), forState: UIControlState.Normal)
+        
+    }
+    
+    
+// Method stubs
+  
+    func start() {
+        
+        
+        
+        if timer == nil { // Start the timer
+            
+            running = 1
+            timer = NSTimer.scheduledTimerWithTimeInterval(0.01, target: self, selector: Selector("updateTimer:"), userInfo: nil, repeats: true)
+            
+            startLabel.setTitle("STOP", forState: UIControlState.Normal)
+            startLabel.setTitleColor(UIColor.redColor(), forState: UIControlState.Normal)
+            
+            stopLabel.setTitle("LAP", forState: UIControlState.Normal)
+            stopLabel.setTitleColor(UIColor.blackColor(), forState: UIControlState.Normal)
+            
+            
+            if(stopTime != nil) { // calculate the duration and substract from the new start
+                
+                var duration = stopTime?.timeIntervalSinceDate(startTime!)
+                startTime = NSDate(timeInterval: -duration!, sinceDate: NSDate())
+            }
+            
+            else { //reset the start time
+                
+                startTime = NSDate()
+                
+            }
+            
+            
+        }
+        
+        else { // don't start the timer
+            
+        }
+
+    }
+    
+    func updateTimer(myTimer: NSTimer) {
+        
+        println("timer...\(myTimer.timeInterval)")
+        currentTime = NSDate()
+        
+        if startTime != nil {
+            var duration = currentTime?.timeIntervalSinceDate(startTime!)
+            println("duration: \(duration)")
+            
+            
+            timeLabel.text = dateStringFromTimeInterval(duration!)
+            }
+        
+        
+    }
+    
+    
+    func dateStringFromTimeInterval(timeInterval: NSTimeInterval)-> String {
+        
+        
+        dateFormatter.dateFormat = "HH:mm:ss.SS"
+        
+        
+        dateFormatter.timeZone = NSTimeZone(name: "UTC")
+        var date = NSDate(timeIntervalSince1970: timeInterval)
+        
+        return dateFormatter.stringFromDate(date)
+        
+    }
+    
+    func stop() {
+        
+        stopTime = NSDate()
+    
+        //stop the timer
+        timer?.invalidate()
+        timer = nil
+        running = 0
+        startLabel.setTitle("START", forState: UIControlState.Normal)
+        startLabel.setTitleColor(UIColor.greenColor(), forState: UIControlState.Normal)
+        stopLabel.setTitle("RESET", forState: UIControlState.Normal)
+        stopLabel.setTitleColor(UIColor.redColor(), forState: UIControlState.Normal)
+        
+    }
+    
+    
+    func reset() {
+        
+        timer?.invalidate()
+        timer = nil
+        
+        timeLabel.text = dateStringFromTimeInterval(0)
+    }
+    
+    
+    
+    func lap() {
+        
+        
+        currentLap = currentLap + 1
+        
+        if currentLap == 1 {
+            lap1.text = timeLabel.text
+            
+        }
+        
+        if currentLap == 2 {
+            lap2.text = timeLabel.text
+            
+        }
+        
+        if currentLap == 3 {
+            lap3.text = timeLabel.text
+            
+        }
+        
+        if currentLap == 4 {
+            lap4.text = timeLabel.text
+            
+        }
+        
+        if currentLap >= 5 {
+            
+            currentLap = 1
+            lap1.text = timeLabel.text
+            
+        }
+        
+    }
+    
+    
+    
+
+    @IBAction func startButtonPressed(sender: AnyObject) {
+        
+        if timer == nil {
+        
+            
+            start()
+        
+        }
+        else {
+            
+            stop()
+        }
+       
+        
+    }
+    
+    @IBAction func stopButtonPressed(sender: AnyObject) {
+        
+        
+        if timer == nil {
+            
+            
+            reset()
+            
+        }
+        else {
+            
+            lap()
+        }
+        
+    }
+    
+    @IBAction func resetButtonPressed(sender: AnyObject) {
+        reset()
+    }
+    
+    
+    
+    
+    func roundUpButtons() {
+        
+        
+        startLabel.frame = CGRectMake(50, 50, 50, 50)
+        startLabel.layer.cornerRadius = 0.3 * startLabel.bounds.size.width
+        startLabel.layer.borderWidth = 0.5
+        
+        stopLabel.frame = CGRectMake(50, 50, 50, 50)
+        stopLabel.layer.cornerRadius = 0.3 * startLabel.bounds.size.width
+        stopLabel.layer.borderWidth = 0.5
+        
+       
+        
+    }
+    
+    
+    
+    
+
+}
+
